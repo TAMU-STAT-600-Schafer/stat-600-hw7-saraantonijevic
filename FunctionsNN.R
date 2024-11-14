@@ -74,19 +74,9 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   # From input to hidden 
   hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n)
   
-  print("Dimensions of hidden_input:")
-  print(dim(hidden_input))  # Should print (n, h)
-  
   # ReLU
   hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
   
-  
-  
-  # Print the dimensions for verification
-  print("Dimensions of hidden_output:")
-  print(dim(hidden_output))  # Should print (n, h)
-  print("Dimensions of W2:")
-  print(dim(W2))  # Should print (h, K)
                         
   # From hidden to output scores
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n)
