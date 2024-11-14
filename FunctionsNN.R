@@ -118,7 +118,10 @@ evaluate_error <- function(Xval, yval, W1, b1, W2, b2){
   
   # [ToDo] Forward pass to get scores on validation data
   hidden_input <- Xval %*% W1 + matrix(rep(b1, each = nval), nrow = nval)
-  hidden_output <- pmax(0, hidden_input) # ReLU activation
+  
+  hidden_output <- matrix(pmax(0, hidden_input), nrow = nval, ncol = ncol(hidden_input))
+
+  
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = nval), nrow = nval)
   
   
