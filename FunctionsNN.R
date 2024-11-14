@@ -180,10 +180,45 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
     #  - do one_pass to determine current error and gradients
     #  - perform SGD step to update the weights and intercepts
     
+    # Track training error for this epoch
+    epoch_loss <- 0
+    for (batch in 1:nBatch) {
+      # Select batch indices
+      batch_indices <- which(batch_ids == batch)
+      X_batch <- X[batch_indices, , drop = FALSE]
+      y_batch <- y[batch_indices]
+      
+      # Run one pass to get current loss, error, and gradients
+      pass_result <- one_pass(X_batch, y_batch, K, W1, b1, W2, b2, lambda)
+      
+      # Accumulate the loss for averaging later
+      epoch_loss <- epoch_loss + pass_result$loss
+      
+      # Extract gradients
+      dW1 <- pass_result$grads$dW1
+      db1 <- pass_result$grads$db1
+      dW2 <- pass_result$grads$dW2
+      db2 <- pass_result$grads$db2
+      
+      # SGD update step
+      W1 <- W1 - rate * dW1
+      b1 <- b1 - rate * db1
+      W2 <- W2 - rate * dW2
+      b2 <- b2 - rate * db2
+    }
+    
     # [ToDo] In the end of epoch, evaluate
     # - average training error across batches
     # - validation error using evaluate_error function
-  }
+    
+    
+    # Calculate average training error across batches
+    error[i] <- epoch_loss / nBatch
+    
+    # Evaluate validation error at the end of the epoch
+    error_val[i] <- evaluate_error(Xval, yval, W1, b1, W2, b2)
+    
+    }
   # Return end result
   return(list(error = error, error_val = error_val, params =  list(W1 = W1, b1 = b1, W2 = W2, b2 = b2)))
 }
