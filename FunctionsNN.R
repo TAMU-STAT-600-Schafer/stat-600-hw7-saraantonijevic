@@ -74,8 +74,19 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   # From input to hidden 
   hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n)
   
+  print("Dimensions of hidden_input:")
+  print(dim(hidden_input))  # Should print (n, h)
+  
   # ReLU
-  hidden_output <- pmax(0, hidden_input)
+  hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
+  
+  
+  
+  # Print the dimensions for verification
+  print("Dimensions of hidden_output:")
+  print(dim(hidden_output))  # Should print (n, h)
+  print("Dimensions of W2:")
+  print(dim(W2))  # Should print (h, K)
                         
   # From hidden to output scores
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n)
@@ -101,8 +112,9 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   
   # Return output (loss and error from forward pass,
   # list of gradients from backward pass)
-  return(list(loss = out$loss, error = out$error, grads = list(dW1 = dW1, db1 = db1, dW2 = dW2, db2 = db2)))
+  return(list(loss = out$loss, error = out$error, hidden_output = hidden_output, grads = list(dW1 = dW1, db1 = db1, dW2 = dW2, db2 = db2)))
 }
+
 
 # Function to evaluate validation set error
 ####################################################
