@@ -55,7 +55,7 @@ loss_grad_scores <- function(y, scores, K){
   grad <- grad / n
   
   # Return loss, gradient and misclassification error on training (in %)
-  return(list(loss = loss, grad = grad, error = error))
+  return(list(loss = loss, grad = grad, error = error, probs = probs))
 }
 
 # One pass function
