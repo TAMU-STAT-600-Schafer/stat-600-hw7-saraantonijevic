@@ -125,6 +125,9 @@ evaluate_error <- function(Xval, yval, W1, b1, W2, b2){
   
   # [ToDo] Evaluate error rate (in %) when 
   # comparing scores-based predictions with true yval
+  predicted_classes <- max.col(scores) - 1 # Subtract 1 for 0-based indexing
+  error <- mean(predicted_classes != yval) * 100
+  
   
   return(error)
 }
