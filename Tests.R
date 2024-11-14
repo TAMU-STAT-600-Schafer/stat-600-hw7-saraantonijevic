@@ -217,3 +217,54 @@ print(paste("Error rate for large input test:", error_large, "%"))
 
 
 
+#Tests for NN_train 
+
+#Test 1: Basic Training Functionality Test
+# Generate synthetic training and validation data
+set.seed(123)
+X_train <- matrix(rnorm(100 * 3), nrow = 100, ncol = 3)  # 100 samples, 3 features
+y_train <- sample(0:2, 100, replace = TRUE)  # 3 classes (0 to 2)
+X_val <- matrix(rnorm(20 * 3), nrow = 20, ncol = 3)  # 20 validation samples
+y_val <- sample(0:2, 20, replace = TRUE)
+
+# Run the function
+results_train <- NN_train(X_train, y_train, X_val, y_val, lambda = 0.01, rate = 0.01, mbatch = 10, nEpoch = 10, hidden_p = 5, scale = 1e-3, seed = 123)
+
+# Print results for verification
+print("Training errors over epochs:")
+print(results_train$error)
+print("Validation errors over epochs:")
+print(results_train$error_val)
+
+
+#Test 2: Case with minimal data
+# Minimal training data
+X_train_min <- matrix(rnorm(10 * 3), nrow = 10, ncol = 3)  # 10 samples, 3 features
+y_train_min <- sample(0:2, 10, replace = TRUE)
+X_val_min <- matrix(rnorm(5 * 3), nrow = 5, ncol = 3)  # 5 validation samples
+y_val_min <- sample(0:2, 5, replace = TRUE)
+
+# Run the function
+results_min <- NN_train(X_train_min, y_train_min, X_val_min, y_val_min, lambda = 0.01, rate = 0.01, mbatch = 2, nEpoch = 5, hidden_p = 3, scale = 1e-3, seed = 123)
+
+# Check if the function runs without errors
+print("Training errors (minimal data):")
+print(results_min$error)
+print("Validation errors (minimal data):")
+print(results_min$error_val)
+
+
+#Test 3: Consistency with Fixed Seed
+# Run the function twice with the same seed
+results_seed1 <- NN_train(X_train, y_train, X_val, y_val, lambda = 0.01, rate = 0.01, mbatch = 10, nEpoch = 10, hidden_p = 5, scale = 1e-3, seed = 123)
+results_seed2 <- NN_train(X_train, y_train, X_val, y_val, lambda = 0.01, rate = 0.01, mbatch = 10, nEpoch = 10, hidden_p = 5, scale = 1e-3, seed = 123)
+
+# Verify that the results are the same
+stopifnot(all.equal(results_seed1$error, results_seed2$error))
+stopifnot(all.equal(results_seed1$error_val, results_seed2$error_val))
+print("Consistency test passed for fixed seed.")
+
+
+
+
+
