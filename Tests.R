@@ -26,3 +26,21 @@ print(results)
 stopifnot(is.numeric(results$loss))
 stopifnot(is.matrix(results$grad))
 stopifnot(length(results$error) == 1)
+
+
+
+
+
+
+
+#Test initialize_bw and loss_grad_scores with unifrom scores:
+# Create uniform scores
+scores_uniform <- matrix(1, nrow = 4, ncol = 3)
+y_uniform <- c(0, 1, 2, 1)
+
+# Run function
+
+
+results_uniform <- loss_grad_scores(y_uniform, scores_uniform, K = 3)
+print(results_uniform$probs)
+stopifnot(all(abs(results_uniform$probs - expected_prob) < 1e-3))
