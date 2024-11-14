@@ -102,7 +102,7 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   
   # Return output (loss and error from forward pass,
   # list of gradients from backward pass)
-  return(list(loss = out$loss, error = out$error, hidden_output = hidden_output, grads = list(dW1 = dW1, db1 = db1, dW2 = dW2, db2 = db2)))
+  return(list(loss = out$loss, error = out$error, grads = list(dW1 = dW1, db1 = db1, dW2 = dW2, db2 = db2)))
 }
 
 
