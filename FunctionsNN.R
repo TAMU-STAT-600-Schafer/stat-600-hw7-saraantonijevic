@@ -75,8 +75,8 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n)
   
   # ReLU
-  hidden_output <- matrix(pmax(0, hidden_input), nrow = nval, ncol = ncol(hidden_input))
-                        
+  hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
+  
   # From hidden to output scores
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n)
   
