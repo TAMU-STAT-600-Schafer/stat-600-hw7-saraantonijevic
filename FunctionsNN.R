@@ -69,13 +69,16 @@ loss_grad_scores <- function(y, scores, K){
 # lambda - a non-negative scalar, ridge parameter for gradient calculations
 one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
 
+  n <- nrow(X)
   # [To Do] Forward pass
   # From input to hidden 
+  hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n)
   
   # ReLU
-  
+  hidden_output <- pmax(0, hidden_input)
+                        
   # From hidden to output scores
- 
+  scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n)
   
   # [ToDo] Backward pass
   # Get loss, error, gradient at current scores using loss_grad_scores function
