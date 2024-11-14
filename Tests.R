@@ -264,6 +264,39 @@ stopifnot(all.equal(results_seed1$error, results_seed2$error))
 stopifnot(all.equal(results_seed1$error_val, results_seed2$error_val))
 print("Consistency test passed for fixed seed.")
 
+#Test 4: Large Input Scalability Test
+# Generate large-scale training and validation data
+X_train_large <- matrix(rnorm(1000 * 20), nrow = 1000, ncol = 20)  # 1000 samples, 20 features
+y_train_large <- sample(0:4, 1000, replace = TRUE)  # 5 classes
+X_val_large <- matrix(rnorm(200 * 20), nrow = 200, ncol = 20)  # 200 validation samples
+y_val_large <- sample(0:4, 200, replace = TRUE)
+
+# Run the function
+results_large <- NN_train(X_train_large, y_train_large, X_val_large, y_val_large, lambda = 0.01, rate = 0.01, mbatch = 50, nEpoch = 10, hidden_p = 10, scale = 1e-3, seed = 123)
+
+# Check results
+print("Training errors (large input):")
+print(results_large$error)
+print("Validation errors (large input):")
+print(results_large$error_val)
+
+
+#Test 5: hecking output structure 
+# Run the function
+results_structure <- NN_train(X_train, y_train, X_val, y_val, lambda = 0.01, rate = 0.01, mbatch = 10, nEpoch = 10, hidden_p = 5, scale = 1e-3, seed = 123)
+
+# Verify structure
+stopifnot(is.list(results_structure))
+stopifnot("error" %in% names(results_structure))
+stopifnot("error_val" %in% names(results_structure))
+stopifnot("params" %in% names(results_structure))
+stopifnot(is.matrix(results_structure$params$W1))
+stopifnot(is.matrix(results_structure$params$W2))
+stopifnot(is.vector(results_structure$params$b1))
+stopifnot(is.vector(results_structure$params$b2))
+print("Output structure test passed.")
+
+
 
 
 
