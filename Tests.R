@@ -162,3 +162,22 @@ results_large <- one_pass(X_large, y_large, K = 5, W1_large, b1_large, W2_large,
 print(results_large$loss)
 print(results_large$error)
 
+
+#Test 1: basic functionality test
+# Generate simple synthetic test data
+set.seed(123)
+Xval_test <- matrix(rnorm(20 * 3), nrow = 20, ncol = 3)  # 20 samples, 3 features
+yval_test <- sample(0:2, 20, replace = TRUE)  # 3 classes (0 to 2)
+W1_test <- matrix(rnorm(3 * 5, mean = 0, sd = 0.1), nrow = 3, ncol = 5)  # 3 input features, 5 hidden units
+b1_test <- rep(0, 5)
+W2_test <- matrix(rnorm(5 * 3, mean = 0, sd = 0.1), nrow = 5, ncol = 3)  # 5 hidden units, 3 output classes
+b2_test <- rep(0, 3)
+
+# Run the function
+error_test <- evaluate_error(Xval_test, yval_test, W1_test, b1_test, W2_test, b2_test)
+print(paste("Error rate for basic functionality test:", error_test, "%"))
+
+
+
+
+
