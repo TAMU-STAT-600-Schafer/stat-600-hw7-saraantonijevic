@@ -97,4 +97,18 @@ stopifnot(is.matrix(results_test$grads$dW2) && all(dim(results_test$grads$dW2) =
 stopifnot(is.vector(results_test$grads$db2) && length(results_test$grads$db2) == length(b2_test))
 
 
-#Test 2:
+#Test 2: edge case with zero weights and biases
+# Zero-initialized weights and biases
+W1_zero <- matrix(0, nrow = 3, ncol = 5)
+b1_zero <- rep(0, 5)
+W2_zero <- matrix(0, nrow = 5, ncol = 3)
+b2_zero <- rep(0, 3)
+
+# Run the function
+results_zero <- one_pass(X_test, y_test, K = 3, W1_zero, b1_zero, W2_zero, b2_zero, lambda_test)
+print(results_zero)
+
+# Ensure loss is calculated and gradients have expected structure
+stopifnot(results_zero$loss > 0)
+stopifnot(is.matrix(results_zero$grads$dW1) && all(dim(results_zero$grads$dW1) == dim(W1_zero)))
+stopifnot(is.matrix(results_zero$grads$dW2) && all(dim(results_zero$grads$dW2) == dim(W2_zero)))
