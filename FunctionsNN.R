@@ -115,7 +115,13 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
 # W2 - a h by K matrix of weights
 # b2 - a vector of size K of intercepts
 evaluate_error <- function(Xval, yval, W1, b1, W2, b2){
+  nval <- nrow(Xval)
+  
   # [ToDo] Forward pass to get scores on validation data
+  hidden_input <- Xval %*% W1 + matrix(rep(b1, each = nval), nrow = nval)
+  hidden_output <- pmax(0, hidden_input) # ReLU activation
+  scores <- hidden_output %*% W2 + matrix(rep(b2, each = nval), nrow = nval)
+  
   
   # [ToDo] Evaluate error rate (in %) when 
   # comparing scores-based predictions with true yval
