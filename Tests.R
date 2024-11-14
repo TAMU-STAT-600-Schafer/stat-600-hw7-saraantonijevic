@@ -190,5 +190,18 @@ error_zero <- evaluate_error(Xval_test, yval_test, W1_zero, b1_zero, W2_zero, b2
 print(paste("Error rate for zero weights and biases test:", error_zero, "%"))
 
 
+#Test 3: Concistency check with random weights
+
+set.seed(456)
+W1_random <- matrix(rnorm(3 * 5, mean = 0, sd = 0.1), nrow = 3, ncol = 5)
+b1_random <- rnorm(5, mean = 0, sd = 0.1)
+W2_random <- matrix(rnorm(5 * 3, mean = 0, sd = 0.1), nrow = 5, ncol = 3)
+b2_random <- rnorm(3, mean = 0, sd = 0.1)
+
+# Run the function
+error_random <- evaluate_error(Xval_test, yval_test, W1_random, b1_random, W2_random, b2_random)
+print(paste("Error rate for random weights and biases test:", error_random, "%"))
+
+
 
 
