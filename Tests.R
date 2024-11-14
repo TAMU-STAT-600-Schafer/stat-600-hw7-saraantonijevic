@@ -112,3 +112,35 @@ print(results_zero)
 stopifnot(results_zero$loss > 0)
 stopifnot(is.matrix(results_zero$grads$dW1) && all(dim(results_zero$grads$dW1) == dim(W1_zero)))
 stopifnot(is.matrix(results_zero$grads$dW2) && all(dim(results_zero$grads$dW2) == dim(W2_zero)))
+
+
+#Test 3: Gradient check with small input
+# Function for numerical gradient checking
+numerical_gradient_check <- function(X, y, K, W1, b1, W2, b2, lambda, epsilon = 1e-5) {
+  # Analytical gradient computation
+  res <- one_pass(X, y, K, W1, b1, W2, b2, lambda)
+  grad_analytical <- res$grads
+  
+  # Check W1 gradients
+  num_grad_W1 <- matrix(0, nrow = nrow(W1), ncol = ncol(W1))
+  for (i in 1:nrow(W1)) {
+    for (j in 1:ncol(W1)) {
+      W1_pos <- W1; W1_pos[i, j] <- W1_pos[i, j] + epsilon
+      W1_neg <- W1; W1_neg[i, j] <- W1_neg[i, j] - epsilon
+      
+      loss_pos <- one_pass(X, y, K, W1_pos, b1, W2, b2, lambda)$loss
+      loss_neg <- one_pass(X, y, K, W1_neg, b1, W2, b2, lambda)$loss
+      
+      num_grad_W1[i, j] <- (loss_pos - loss_neg) / (2 * epsilon)
+    }
+  }
+  
+  # Print numerical and analytical gradients for comparison
+  print("Numerical and analytical gradients comparison for W1:")
+  print(cbind(num_grad_W1, grad_analytical$dW1))
+  
+  # Repeat for other gradients (W2, b1, b2) similarly if needed
+}
+
+# Run numerical gradient check
+numerical_gradient_check(X_test, y_test, K = 3, W1_test, b1_test, W2_test, b2_test, lambda_test)
