@@ -184,7 +184,7 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
     epoch_loss <- 0
     for (batch in 1:nBatch) {
       # Select batch indices
-      batch_indices <- which(batch_ids == batch)
+      batch_indices <- which(batchids == batch)
       X_batch <- X[batch_indices, , drop = FALSE]
       y_batch <- y[batch_indices]
       
