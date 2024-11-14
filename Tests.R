@@ -73,4 +73,28 @@ stopifnot(all(results_large$error >= 0 & results_large$error <= 100))
 
 
 
+#Test 1: basic functionality check
+# Simple synthetic test data
+set.seed(42)
+X_test <- matrix(rnorm(10 * 3), nrow = 10, ncol = 3)  # 10 samples, 3 features
+y_test <- sample(0:2, 10, replace = TRUE)  # 3 classes (0 to 2)
+W1_test <- matrix(rnorm(3 * 5, mean = 0, sd = 0.1), nrow = 3, ncol = 5)  # 3 input features, 5 hidden units
+b1_test <- rep(0, 5)
+W2_test <- matrix(rnorm(5 * 3, mean = 0, sd = 0.1), nrow = 5, ncol = 3)  # 5 hidden units, 3 output classes
+b2_test <- rep(0, 3)
+lambda_test <- 0.1
 
+# Run the function
+results_test <- one_pass(X_test, y_test, K = 3, W1_test, b1_test, W2_test, b2_test, lambda_test)
+print(results_test)
+
+# Checks for expected outputs
+stopifnot(is.numeric(results_test$loss))
+stopifnot(length(results_test$error) == 1)
+stopifnot(is.matrix(results_test$grads$dW1) && all(dim(results_test$grads$dW1) == dim(W1_test)))
+stopifnot(is.vector(results_test$grads$db1) && length(results_test$grads$db1) == length(b1_test))
+stopifnot(is.matrix(results_test$grads$dW2) && all(dim(results_test$grads$dW2) == dim(W2_test)))
+stopifnot(is.vector(results_test$grads$db2) && length(results_test$grads$db2) == length(b2_test))
+
+
+#Test 2:
