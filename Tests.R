@@ -202,6 +202,18 @@ b2_random <- rnorm(3, mean = 0, sd = 0.1)
 error_random <- evaluate_error(Xval_test, yval_test, W1_random, b1_random, W2_random, b2_random)
 print(paste("Error rate for random weights and biases test:", error_random, "%"))
 
+#Test 4: Large input scalability 
+# Generate larger input data for scalability test
+Xval_large <- matrix(rnorm(5000 * 20), nrow = 5000, ncol = 20)
+yval_large <- sample(0:4, 5000, replace = TRUE)
+W1_large <- matrix(rnorm(20 * 10, mean = 0, sd = 0.1), nrow = 20, ncol = 10)
+b1_large <- rep(0, 10)
+W2_large <- matrix(rnorm(10 * 5, mean = 0, sd = 0.1), nrow = 10, ncol = 5)
+b2_large <- rep(0, 5)
+
+# Run the function
+error_large <- evaluate_error(Xval_large, yval_large, W1_large, b1_large, W2_large, b2_large)
+print(paste("Error rate for large input test:", error_large, "%"))
 
 
 
