@@ -144,3 +144,21 @@ numerical_gradient_check <- function(X, y, K, W1, b1, W2, b2, lambda, epsilon = 
 
 # Run numerical gradient check
 numerical_gradient_check(X_test, y_test, K = 3, W1_test, b1_test, W2_test, b2_test, lambda_test)
+
+
+
+#Test 4: Large Input Test for Scalability
+# Generate large input data
+X_large <- matrix(rnorm(10000 * 20), nrow = 10000, ncol = 20)
+y_large <- sample(0:4, 10000, replace = TRUE)
+W1_large <- matrix(rnorm(20 * 10, mean = 0, sd = 0.1), nrow = 20, ncol = 10)
+b1_large <- rep(0, 10)
+W2_large <- matrix(rnorm(10 * 5, mean = 0, sd = 0.1), nrow = 10, ncol = 5)
+b2_large <- rep(0, 5)
+lambda_large <- 0.1
+
+# Run the function
+results_large <- one_pass(X_large, y_large, K = 5, W1_large, b1_large, W2_large, b2_large, lambda_large)
+print(results_large$loss)
+print(results_large$error)
+
