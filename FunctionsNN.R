@@ -29,34 +29,50 @@ initialize_bw <- function(p, hidden_p, K, scale = 1e-3, seed = 12345){
 # y - a vector of size n of class labels, from 0 to K-1
 # K - number of classes
 loss_grad_scores <- function(y, scores, K){
-  n <- nrow(scores)
+
+  # Number of samples
+  n <- length(y)
   
   # Apply softmax to scores to get probabilities
+ 
   exp_scores <- exp(scores)
   probs <- exp_scores / rowSums(exp_scores)
   
+  
+  # Convert y to a one-hot encoded matrix
+  y_one_hot <- matrix(0, n, K)
+  for (i in 1:n) {
+    y_one_hot[i, y[i] + 1] <- 1
+  }
+  
+  
   # [ToDo] Calculate loss when lambda = 0
   # loss = ...
+  loss <- -sum(y_one_hot * log(probs)) / n
   
-  correct_class_probs <- probs[cbind(1:n, y + 1)] # Add 1 for 1-based indexing in R
-  loss <- -sum(log(correct_class_probs)) / n
+  # Predict class labels from scores
+  predicted_labels <- max.col(probs) - 1  # max.col returns 1-indexed, subtract 1 for 0-indexed
+  
+  
   
   # [ToDo] Calculate misclassification error rate (%)
   # when predicting class labels using scores versus true y
   # error = ...
-  predicted_classes <- max.col(probs) - 1 # Subtract 1 to match 0-based labels
-  error <- mean(predicted_classes != y) * 100
+  # Calculate misclassification error rate
+  error <- mean(predicted_labels != y) * 100  # in percentage
+  
+  # Calculate gradient of loss with respect to scores (when lambda = 0)
+  grad <- (probs - y_one_hot) / n
   
   # [ToDo] Calculate gradient of loss with respect to scores (output)
   # when lambda = 0
   # grad = ...
-  grad <- probs
-  grad[cbind(1:n, y + 1)] <- grad[cbind(1:n, y + 1)] - 1
-  grad <- grad / n
+
   
   # Return loss, gradient and misclassification error on training (in %)
   return(list(loss = loss, grad = grad, error = error, probs = probs))
-}
+  
+  }
 
 # One pass function
 ################################################
@@ -67,42 +83,117 @@ loss_grad_scores <- function(y, scores, K){
 # W2 - a h by K matrix of weights
 # b2 - a vector of size K of intercepts
 # lambda - a non-negative scalar, ridge parameter for gradient calculations
-one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
 
+
+#hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
+
+one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   n <- nrow(X)
-  # [To Do] Forward pass
-  # From input to hidden 
-  hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n)
   
-  # ReLU
+  # Forward pass
+  hidden_input <- X %*% W1 + matrix(rep(b1, each = n), nrow = n, byrow = TRUE)
   hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
   
-  # From hidden to output scores
-  scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n)
+  scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n, byrow = TRUE)
   
-  # [ToDo] Backward pass
-  # Get loss, error, gradient at current scores using loss_grad_scores function
-  out <- loss_grad_scores(y, scores, K)
+  # Debug: Print intermediate values
+  print("Hidden input:")
+  print(hidden_input)
+  print("Hidden output:")
+  print(hidden_output)
+  print("Scores:")
+  print(scores)
   
-  # Get gradient for 2nd layer W2, b2 (use lambda as needed)
+  # Calculate probabilities and loss using the function previously created
+  loss_grad_result <- loss_grad_scores(y, scores, K)
   
-  dScores <- out$grad
-  dW2 <- t(hidden_output) %*% dScores / n + lambda * W2
-  db2 <- colSums(dScores)/n
+  # Debug: Check what loss_grad_result returns
+  print("Loss and Gradient Result:")
+  print(loss_grad_result)
   
-  # Get gradient for hidden, and 1st layer W1, b1 (use lambda as needed)
-  dHidden <- dScores %*% t(W2)
-  dHidden[hidden_input <= 0] <- 0 # Apply ReLU derivative
+  # Correct the access to the gradient
+  grad_scores <- loss_grad_result$grad
   
+  # Ensure grad_scores is a numeric matrix
+  if (!is.matrix(grad_scores) && !is.null(grad_scores)) {
+    grad_scores <- as.matrix(grad_scores)
+  } else if (is.null(grad_scores)) {
+    stop("Gradient returned by loss_grad_scores is NULL, cannot proceed.")
+  }
   
-  # Gradients for W1 and b1
-  dW1 <- t(X) %*% dHidden / n + lambda * W1
-  db1 <- colSums(dHidden) / n
+  # Debug: Print grad_scores to check its structure
+  print("Grad Scores:")
+  print(grad_scores)
+  
+  loss <- loss_grad_result$loss
+  
+  # Step 1: Gradient with respect to W2 and b2
+  grad_W2 <- t(hidden_output) %*% grad_scores + lambda * W2
+  grad_b2 <- colSums(grad_scores)
+  
+  # Debug: Print gradients for W2 and b2
+  print("Gradient W2:")
+  print(grad_W2)
+  print("Gradient b2:")
+  print(grad_b2)
+  
+  # Step 2: Backpropagate gradient to hidden layer
+  grad_hidden <- grad_scores %*% t(W2)
+  grad_hidden[hidden_input <= 0] <- 0  # Apply ReLU derivative
+  
+  # Debug: Print gradient at hidden layer
+  print("Gradient Hidden Layer:")
+  print(grad_hidden)
+  
+  # Step 3: Gradient with respect to W1 and b1
+  grad_W1 <- t(X) %*% grad_hidden + lambda * W1
+  grad_b1 <- colSums(grad_hidden)
+  
+  # Debug: Print gradients for W1 and b1
+  print("Gradient W1:")
+  print(grad_W1)
+  print("Gradient b1:")
+  print(grad_b1)
   
   # Return output (loss and error from forward pass,
   # list of gradients from backward pass)
-  return(list(loss = out$loss, error = out$error, grads = list(dW1 = dW1, db1 = db1, dW2 = dW2, db2 = db2)))
+  return(list(loss = loss_grad_result$loss, error = loss_grad_result$error, grads = list(dW1 = grad_W1, db1 = grad_b1, dW2 = grad_W2, db2 = grad_b2)))
 }
+
+# Set seed for reproducibility
+set.seed(42)
+
+# Generate a small synthetic dataset
+X <- matrix(rnorm(20), nrow = 5, ncol = 4)  # 5 samples, 4 features
+y <- sample(0:2, 5, replace = TRUE)  # Class labels for 3 classes (0, 1, 2)
+
+# Initialize weights and biases
+p <- ncol(X)  # Number of input features
+h <- 3        # Number of hidden units
+K <- 3        # Number of classes
+
+W1 <- matrix(rnorm(p * h), nrow = p, ncol = h)
+b1 <- rnorm(h)
+W2 <- matrix(rnorm(h * K), nrow = h, ncol = K)
+b2 <- rnorm(K)
+
+# Set a small lambda for ridge regularization
+lambda <- 0.01
+
+# Run the one_pass function
+result <- one_pass(X, y, K, W1, b1, W2, b2, lambda)
+
+# Print results
+print(paste("Loss:", result$loss))
+print("Gradient W1:")
+print(result$grads$dW1)
+print("Gradient b1:")
+print(result$grads$db1)
+print("Gradient W2:")
+print(result$grads$dW2)
+print("Gradient b2:")
+print(result$grads$db2)
+
 
 
 # Function to evaluate validation set error
@@ -118,10 +209,7 @@ evaluate_error <- function(Xval, yval, W1, b1, W2, b2){
   
   # [ToDo] Forward pass to get scores on validation data
   hidden_input <- Xval %*% W1 + matrix(rep(b1, each = nval), nrow = nval)
-  
   hidden_output <- matrix(pmax(0, hidden_input), nrow = nval, ncol = ncol(hidden_input))
-
-  
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = nval), nrow = nval)
   
   
@@ -154,7 +242,7 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
   # Get sample size and total number of batches
   n = length(y)
   nBatch = floor(n/mbatch)
-
+  
   # [ToDo] Initialize b1, b2, W1, W2 using initialize_bw with seed as seed,
   # and determine any necessary inputs from supplied ones
   
@@ -218,7 +306,7 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
     # Evaluate validation error at the end of the epoch
     error_val[i] <- evaluate_error(Xval, yval, W1, b1, W2, b2)
     
-    }
+  }
   # Return end result
   return(list(error = error, error_val = error_val, params =  list(W1 = W1, b1 = b1, W2 = W2, b2 = b2)))
 }
