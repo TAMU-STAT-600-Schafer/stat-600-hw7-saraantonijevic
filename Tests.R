@@ -300,4 +300,30 @@ print("Output structure test passed.")
 
 
 
+#Tests for whole code:
+set.seed(123)
+n <- 100  # Number of points per class
+p <- 2    # Number of features
+X_class0 <- matrix(rnorm(n * p, mean = -1), n, p)
+X_class1 <- matrix(rnorm(n * p, mean = 1), n, p)
+X <- rbind(X_class0, X_class1)
+y <- c(rep(0, n), rep(1, n))  # Class labels
+
+# Split into training and validation
+train_indices <- sample(1:(2 * n), size = n)
+X_train <- X[train_indices, ]
+y_train <- y[train_indices]
+X_val <- X[-train_indices, ]
+y_val <- y[-train_indices]
+
+result <- NN_train(X_train, y_train, X_val, y_val, lambda = 0.01,
+                   rate = 0.1, mbatch = 10, nEpoch = 50,
+                   hidden_p = 5, scale = 1e-2, seed = 42)
+
+plot(result$error, type = "l", col = "blue", lwd = 2,
+     xlab = "Epoch", ylab = "Training Loss", main = "Training Loss Across Epochs")
+lines(result$error_val, col = "red", lwd = 2)
+legend("topright", legend = c("Training Loss", "Validation Error"),
+       col = c("blue", "red"), lwd = 2)
+
 
