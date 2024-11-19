@@ -16,7 +16,7 @@
 # error_train - (numIter + 1) length vector of training error % at each iteration (+ starting value)
 # error_test - (numIter + 1) length vector of testing error % at each iteration (+ starting value)
 # objective - (numIter + 1) length vector of objective values of the function that we are minimizing at each iteration (+ starting value)
-LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta_init = NULL){
+LRMultiClass = function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta_init = NULL){
   ## Check the supplied parameters as described. You can assume that X, Xt are matrices; y, yt are vectors; and numIter, eta, lambda are scalars. You can assume that beta_init is either NULL (default) or a matrix.
   ###################################
   # Check that the first column of X and Xt are 1s, if not - display appropriate message and stop execution.
@@ -40,8 +40,6 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   if (ncol(X) != ncol(Xt)) {
     stop("The number of columns in X and Xt do not match.")
   }
-  
-  
   # Check eta is positive
   if(eta<= 0){
     stop("Eta must be positive")
@@ -76,8 +74,12 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   error_test = numeric(numIter + 1) 
   
   
+  
+  
+  
   ## Calculate corresponding pk, objective value f(beta_init), training error and testing error given the starting point beta_init
   ##########################################################################
+  
   #calc corresponding pk
   calculateProbs = function(X, beta){
     linearComb = X %*% beta
@@ -108,12 +110,8 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
   error_train[1] = calcError(prob_train, y)
   error_test[1] = calcError(prob_test, yt)
   
-  
-  
   ## Newton's method cycle - implement the update EXACTLY numIter iterations
   ##########################################################################
- 
-  # Within one iteration: perform the update, calculate updated objective function and training/testing errors in %
   for (t in 1:numIter){
     for (k in 1:K){
       Pk = prob_train[, k]  # Extract probabilities for class k
@@ -142,7 +140,6 @@ LRMultiClass <- function(X, y, Xt, yt, numIter = 50, eta = 0.1, lambda = 1, beta
     error_train[t + 1] = calcError(prob_train, y)
     error_test[t + 1] = calcError(prob_test, yt)
   }
-  
   
   ## Return output
   ##########################################################################
