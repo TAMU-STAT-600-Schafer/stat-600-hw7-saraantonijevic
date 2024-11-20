@@ -215,9 +215,6 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
     # Evaluate validation error at the end of each epoch
     error_val[i] <- evaluate_error(Xval, yval, W1, b1, W2, b2)
     
-    # Optionally, print progress
-    cat("Epoch", i, ": Training Error =", error[i], "%, Validation Error =", error_val[i], "%\n")
-  }
   
   # Return the final parameters and recorded errors
   return(list(error = error, error_val = error_val, params = list(W1 = W1, b1 = b1, W2 = W2, b2 = b2)))
