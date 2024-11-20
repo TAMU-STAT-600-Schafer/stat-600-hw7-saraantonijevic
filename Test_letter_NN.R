@@ -1,5 +1,6 @@
 # Load the data
-
+install.packages("microbenchmark")
+library(microbenchmark)
 # Training data
 letter_train <- read.table("Data/letter-train.txt", header = F, colClasses = "numeric")
 Y <- letter_train[, 1]
@@ -19,7 +20,6 @@ Xt <- as.matrix(letter_test[, -1])
 
 # Source the NN function
 source("FunctionsNN.R")
-
 # [ToDo] Source the functions from HW3 (replace FunctionsLR.R with your working code)
 source("FunctionsLR.R")
 
@@ -47,6 +47,24 @@ lines(1:length(out2$error_val), out2$error_val, col = "red")
 # Evaluate error on testing data
 test_error = evaluate_error(Xt, Yt, out2$params$W1, out2$params$b1, out2$params$W2, out2$params$b2)
 test_error # 16.1
+
+# Print the training error
+cat("Final Training Error =", out2$error[length(out2$error)], "%\n")
+cat("Final Validation Error =", out2$error_val[length(out2$error_val)], "%\n")
+# Load the microbenchmark package
+library(microbenchmark)
+
+# Microbenchmark the NN_train function call that produces `out2`
+benchmark_out2 <- microbenchmark(
+  out2 = NN_train(Xtrain, Ytrain, Xval, Yval, lambda = 0.001,
+                  rate = 0.1, mbatch = 50, nEpoch = 150,
+                  hidden_p = 100, scale = 1e-3, seed = 12345),
+  times = 5  # Number of repetitions to ensure robust timing
+)
+
+# Print the benchmarking results for the out2 training
+print(benchmark_out2)
+
 
 
 # [ToDo] Try changing the parameters above to obtain a better performance,
