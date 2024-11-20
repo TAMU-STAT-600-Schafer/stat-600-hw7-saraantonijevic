@@ -27,37 +27,51 @@ initialize_bw <- function(p, hidden_p, K, scale = 1e-3, seed = 12345){
 # scores - a matrix of size n by K of scores (output layer)
 # y - a vector of size n of class labels, from 0 to K-1
 # K - number of classes
-# Function to calculate the loss, gradient, and misclassification error
-# when lambda = 0 for multi-class logistic regression
-loss_grad_scores <- function(y, scores, K) {
+loss_grad_scores <- function(y, scores, K){
+  
   # Number of samples
   n <- length(y)
   
   # Apply softmax to scores to get probabilities
+  
   exp_scores <- exp(scores)
   probs <- exp_scores / rowSums(exp_scores)
   
-  # Create one-hot encoded matrix using matrix indexing
-  y_one_hot <- matrix(0, n, K)
-  y_one_hot[cbind(1:n, y + 1)] <- 1
   
-  # Calculate loss
+  # Convert y to a one-hot encoded matrix
+  y_one_hot <- matrix(0, n, K)
+  for (i in 1:n) {
+    y_one_hot[i, y[i] + 1] <- 1
+  }
+  
+  
+  # [ToDo] Calculate loss when lambda = 0
+  # loss = ...
   loss <- -sum(y_one_hot * log(probs)) / n
   
   # Predict class labels from scores
   predicted_labels <- max.col(probs) - 1  # max.col returns 1-indexed, subtract 1 for 0-indexed
   
+  
+  
+  # [ToDo] Calculate misclassification error rate (%)
+  # when predicting class labels using scores versus true y
+  # error = ...
   # Calculate misclassification error rate
   error <- mean(predicted_labels != y) * 100  # in percentage
   
-  # Calculate gradient of loss with respect to scores
+  # Calculate gradient of loss with respect to scores (when lambda = 0)
   grad <- (probs - y_one_hot) / n
   
-  # Return loss, gradient, and misclassification error
+  # [ToDo] Calculate gradient of loss with respect to scores (output)
+  # when lambda = 0
+  # grad = ...
+  
+  
+  # Return loss, gradient and misclassification error on training (in %)
   return(list(loss = loss, grad = grad, error = error, probs = probs))
+  
 }
-
-
 
 # One pass function
 ################################################
@@ -71,7 +85,7 @@ loss_grad_scores <- function(y, scores, K) {
 
 
 #hidden_output <- matrix(pmax(0, hidden_input), nrow = n, ncol = ncol(hidden_input))
-# One pass function with regularization term added to the loss
+
 one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   n <- nrow(X)
   
@@ -81,13 +95,11 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
   
   scores <- hidden_output %*% W2 + matrix(rep(b2, each = n), nrow = n, byrow = TRUE)
   
+  
+  
   # Calculate probabilities and loss using the function previously created
   loss_grad_result <- loss_grad_scores(y, scores, K)
-  loss <- loss_grad_result$loss
   
-  # Add regularization term to the loss
-  reg_term <- (lambda / 2) * (sum(W1^2) + sum(W2^2))
-  loss <- loss + reg_term
   
   # Correct the access to the gradient
   grad_scores <- loss_grad_result$grad
@@ -99,21 +111,27 @@ one_pass <- function(X, y, K, W1, b1, W2, b2, lambda){
     stop("Gradient returned by loss_grad_scores is NULL, cannot proceed.")
   }
   
+  
+  loss <- loss_grad_result$loss
+  
   # Step 1: Gradient with respect to W2 and b2
   grad_W2 <- t(hidden_output) %*% grad_scores + lambda * W2
   grad_b2 <- colSums(grad_scores)
+  
   
   # Step 2: Backpropagate gradient to hidden layer
   grad_hidden <- grad_scores %*% t(W2)
   grad_hidden[hidden_input <= 0] <- 0  # Apply ReLU derivative
   
+  
   # Step 3: Gradient with respect to W1 and b1
   grad_W1 <- t(X) %*% grad_hidden + lambda * W1
   grad_b1 <- colSums(grad_hidden)
   
+  
   # Return output (loss and error from forward pass,
   # list of gradients from backward pass)
-  return(list(loss = loss, error = loss_grad_result$error, grads = list(dW1 = grad_W1, db1 = grad_b1, dW2 = grad_W2, db2 = grad_b2)))
+  return(list(loss = loss_grad_result$loss, error = loss_grad_result$error, grads = list(dW1 = grad_W1, db1 = grad_b1, dW2 = grad_W2, db2 = grad_b2)))
 }
 
 
@@ -215,12 +233,11 @@ NN_train <- function(X, y, Xval, yval, lambda = 0.01,
     # Evaluate validation error at the end of each epoch
     error_val[i] <- evaluate_error(Xval, yval, W1, b1, W2, b2)
     
-    
+    # Print progress
+    #cat("Epoch", i, ": Training Error =", error[i], "%, Validation Error =", error_val[i], "%\n")
   }
   
   # Return the final parameters and recorded errors
   return(list(error = error, error_val = error_val, params = list(W1 = W1, b1 = b1, W2 = W2, b2 = b2)))
 }
-
-
 
