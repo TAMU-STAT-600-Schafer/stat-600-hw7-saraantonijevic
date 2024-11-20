@@ -21,8 +21,8 @@ Xt <- as.matrix(letter_test[, -1])
 source("FunctionsNN.R")
 
 # [ToDo] Source the functions from HW3 (replace FunctionsLR.R with your working code)
-#source("FunctionsLR.R")
-source("letsSee.R")
+source("FunctionsLR.R")
+
 
 # Recall the results of linear classifier from HW3
 # Add intercept column
