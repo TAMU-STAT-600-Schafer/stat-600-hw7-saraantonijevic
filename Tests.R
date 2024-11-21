@@ -71,4 +71,23 @@ plot(1:length(results$error), results$error, type = "l", col = "blue",
 
 
 # How does the classification error change across iterations?
+# Generate moderately overlapping data
+set.seed(123)
+X <- rbind(matrix(rnorm(50, mean = 1, sd = 1.5), nrow = 25),
+           matrix(rnorm(50, mean = -1, sd = 1.5), nrow = 25))
+y <- c(rep(0, 25), rep(1, 25))
 
+# Validation set with similar properties
+Xval <- rbind(matrix(rnorm(20, mean = 1, sd = 1.5), nrow = 10),
+              matrix(rnorm(20, mean = -1, sd = 1.5), nrow = 10))
+yval <- c(rep(0, 10), rep(1, 10))
+
+# Train the neural network
+results <- NN_train(X, y, Xval, yval, lambda = 0.01, rate = 0.05, mbatch = 10, nEpoch = 100, hidden_p = 10)
+
+# Plot training and validation classification error across iterations
+plot(results$error, type = "l", col = "red", ylim = range(c(results$error, results$error_val)),
+     xlab = "Epoch", ylab = "Error (%)", main = "Classification Error Across Iterations")
+lines(results$error_val, col = "blue")
+legend("topright", legend = c("Training Error", "Validation Error"),
+       col = c("red", "blue"), lty = 1)
