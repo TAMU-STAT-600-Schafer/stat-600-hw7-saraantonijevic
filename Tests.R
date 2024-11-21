@@ -26,10 +26,49 @@ cat("Calculated Loss:", results$loss, "\nExpected Loss:", expected_loss, "\n")
 
 #What happens if I use two normal populations?
 
+# Generate data from two normal populations
+set.seed(42)
+X <- rbind(matrix(rnorm(50, mean = 2), nrow = 25),
+           matrix(rnorm(50, mean = -2), nrow = 25))
+y <- c(rep(0, 25), rep(1, 25))
+
+#X <- rbind(matrix(rnorm(50, mean = 0, sd = 2), nrow = 25),
+ #          matrix(rnorm(50, mean = 0, sd = 2), nrow = 25))
+#y <- c(rep(0, 25), rep(1, 25))
+
+# Validation set
+Xval <- rbind(matrix(rnorm(20, mean = 2), nrow = 10),
+              matrix(rnorm(20, mean = -2), nrow = 10))
+yval <- c(rep(0, 10), rep(1, 10))
+
+# Train the neural network
+results <- NN_train(X, y, Xval, yval, lambda = 0.01, rate = 0.1, mbatch = 10, nEpoch = 50, hidden_p = 5)
+
+# Output training and validation errors
+cat("Final Training Error:", results$error[50], "\nFinal Validation Error:", results$error_val[50], "\n")
 
 
 #Does the objective value improve across iterations?
 
+# Generate simple linearly separable data
+set.seed(42)
+X <- rbind(matrix(rnorm(50, mean = 2), nrow = 25),
+           matrix(rnorm(50, mean = -2), nrow = 25))
+y <- c(rep(0, 25), rep(1, 25))
+
+# Validation set
+Xval <- rbind(matrix(rnorm(20, mean = 2), nrow = 10),
+              matrix(rnorm(20, mean = -2), nrow = 10))
+yval <- c(rep(0, 10), rep(1, 10))
+
+# Train the neural network with loss tracking
+results <- NN_train(X, y, Xval, yval, lambda = 0.01, rate = 0.1, mbatch = 10, nEpoch = 50, hidden_p = 5)
+
+# Plot the objective value (loss) across epochs
+plot(1:length(results$error), results$error, type = "l", col = "blue",
+     xlab = "Epoch", ylab = "Training Error",
+     main = "Training Error Across Iterations")
 
 
 # How does the classification error change across iterations?
+
