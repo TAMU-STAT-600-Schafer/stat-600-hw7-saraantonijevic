@@ -59,7 +59,7 @@ benchmark_out2 <- microbenchmark(
   out2 = NN_train(Xtrain, Ytrain, Xval, Yval, lambda = 0.001,
                   rate = 0.1, mbatch = 50, nEpoch = 150,
                   hidden_p = 100, scale = 1e-3, seed = 12345),
-  times = 5  # Number of repetitions to ensure robust timing
+  times = 10  # Number of repetitions to ensure robust timing
 )
 
 # Print the benchmarking results for the out2 training
